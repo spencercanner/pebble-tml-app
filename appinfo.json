@@ -4,7 +4,7 @@
         ""
     ],
     "companyName": "spencer_canner@hotmail.com",
-    "longName": "NHL",
+    "longName": "Toronto Maple Leafs",
     "projectType": "pebblejs",
     "resources": {
         "media": [
@@ -32,10 +32,10 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "NHL",
+    "shortName": "TML",
     "uuid": "653a8d1c-996b-4a91-a156-f980f3f12bc9",
     "versionCode": 1,
-    "versionLabel": "1.0",
+    "versionLabel": "1.2",
     "watchapp": {
         "hiddenApp": false,
         "watchface": false

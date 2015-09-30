@@ -4,6 +4,8 @@
  * This is where you write your app.
  */
 
+//http://hfboards.hockeysfuture.com/showthread.php?p=79594853
+
 var UI = require('ui');
 var Vector2 = require('vector2');
 var Vibe = require('ui/vibe');
@@ -106,16 +108,22 @@ function showSchedule () {
 	var month = dateNum.split("-")[1];
 	//var day = dateNum.split("-")[2];
 	ajax({ url: 'http://nhlwc.cdnak.neulion.com/fs1/nhl/league/clubschedule/TOR/' + year + '/' +  month + '/iphone/clubschedule.json', type: 'json' },
-  function(data) {
-    for (var i = 0; i < data.games.length; i++){
-			var game = data.games[i];
+  function(data) { 
+		console.log(data);
+		var currentData = data;
+		var games = [];
+		var i;
+		for (i = 0; i < currentData.games.length; i++){
+			var game = currentData.games[i];
 			var loc = game.loc;
 			var opp = game.abb;
 			var score = game.score;
 			var start = game.startTime;
 			var date = start.split(" ")[0].split("/");
 			var time = start.split(" ")[1].split(":");
-			var d = new Date(date[0], date[1], date[2]);
+			console.log(date[1]);
+			var d = new Date(date[0], date[1] - 1, date[2]);
+			console.log(d);
 			var newTime;
 			if(time[0] > 12) {
 				var hour = time[0] - 12;
@@ -132,11 +140,11 @@ function showSchedule () {
 			else 
 				title = "Away vs " + opp;
 			if (period === ""){
-				subtitle = d.toDateString() + " - " +  newTime;
+				subtitle = d.toDateString().substring(4,d.toDateString().length-5) + " - " +  newTime;
 			}
 			else {
 				if(status == "FINAL"){
-					subtitle = score + " - " + d.toDateString();
+					subtitle = score + " - " + d.toDateString().substring(4,d.toDateString().length-5);
 				}
 				else {
 					subtitle = period + " period " + score; 
@@ -150,12 +158,10 @@ function showSchedule () {
 			}]
 		});
 		schedule.show();
-  },  // End of success callback
-
-  function(error) {
-			Vibe.vibrate('long');
-	}   // End of error callback
-);
+	},
+	function(error) {
+		Vibe.vibrate('long');
+	});
 }
 
 
