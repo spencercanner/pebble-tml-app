@@ -88,7 +88,23 @@ function showRoster() {
 			}]
 	});
 	players.show();
-		});
+			players.on('select', function (e) {
+				console.log(e.item.title);
+				var first;
+				var last;
+				if(e.item.title.split(" ").length === 2){
+					first = e.item.title.split(" ")[0];
+					last = e.item.title.split(" ")[1];
+					showTwoNamePlayer(first, last);
+				}
+				else if(e.item.title.split(" ").length === 3) {
+					first = e.item.title.split(" ")[0];
+					var middle = e.item.title.split(" ")[1];
+					last = e.item.title.split(" ")[2];
+					showThreeNamePlayer(first, middle, last);
+				}
+			});
+	});
 		positions.show();
   },  // End of success callback
 
@@ -96,6 +112,104 @@ function showRoster() {
 			Vibe.vibrate('long');
 	}   // End of error callback
 );
+}
+
+function showTwoNamePlayer(first, last) {
+	console.log(first + "#" + last);
+	var ajax = require('ajax');
+	ajax({ url: 'http://www.tsn.ca/mobile/bbcard.aspx?hub=NHL&name=' + first + '+' + last},
+  function(data) {
+		if (data !== ""){
+			console.log(data.toString());
+			var body = data.toString().match(/<playerCard>(.*?)<\/playerCard>/g).toString().replace('<playerCard>','').replace('</playerCard>','');
+			var name = body.match(/<playerCardName>(.*?)<\/playerCardName>/g).toString().replace('<playerCardName>','').replace('</playerCardName>','');
+			var info = body.match(/<playerCard-info>(.*?)<\/playerCard-info>/g).toString().replace('<playerCard-info>','').replace('</playerCard-info>','');
+			var status = body.match(/<playerCard-status>(.*?)<\/playerCard-status>/g).toString().replace('<playerCard-status>','').replace('</playerCard-status>','');
+			var headers = body.match(/<headers (.*?)<\/headers>/g).toString().replace('<headers ','').replace('>headers</headers>','');
+			var rowsData = body.match(/<playerCard-row (.*?)<\/playerCard-row>/g);
+			console.log(body);
+			console.log(name);
+			console.log(info);
+			console.log(headers.split('\" col'));
+			var playerData = "";
+			var headerArr = headers.split('\" col');
+			if (rowsData === null) {
+				playerData += status.split(",")[0];
+			}
+			else {
+				for (var i = 1; i < headerArr.length; i++){
+					var rowArr = rowsData[0].toString().replace('<playerCard-row ','').replace('>info</playerCard-row>','').split('\" col');
+					var tag = headerArr[i].split('\"');
+					var value = rowArr[i].split('\"');
+					playerData += tag[1] + ": " + value[1] + "\n";
+					console.log(tag[1] + ":" + value[1]);
+				}
+			}
+			var card = new UI.Card({
+				title: first + ' ' + last,
+				body: playerData,
+				scrollable: true
+			});
+			card.show();
+		}
+		else {
+			var noPlayer = new UI.Card({
+				title: first + ' ' + last,
+				body: "Sorry, no data available for this player",
+				scrollable: true
+			});
+			noPlayer.show();
+		}
+	});
+}
+
+function showThreeNamePlayer(first, middle, last) {
+	console.log(first + "#" + middle + "#" + last);
+	var ajax = require('ajax');
+	ajax({ url: 'http://www.tsn.ca/mobile/bbcard.aspx?hub=NHL&name=' + first + '+' + middle + '+' + last},
+  function(data) {
+		if(data !== null){
+			console.log(data.toString());
+			var body = data.toString().match(/<playerCard>(.*?)<\/playerCard>/g).toString().replace('<playerCard>','').replace('</playerCard>','');
+			var name = body.match(/<playerCardName>(.*?)<\/playerCardName>/g).toString().replace('<playerCardName>','').replace('</playerCardName>','');
+			var info = body.match(/<playerCard-info>(.*?)<\/playerCard-info>/g).toString().replace('<playerCard-info>','').replace('</playerCard-info>','');
+			var status = body.match(/<playerCard-status>(.*?)<\/playerCard-status>/g).toString().replace('<playerCard-status>','').replace('</playerCard-status>','');
+			var headers = body.match(/<headers (.*?)<\/headers>/g).toString().replace('<headers ','').replace('>headers</headers>','');
+			var rows = body.match(/<playerCard-row (.*?)<\/playerCard-row>/g)[0].toString().replace('<playerCard-row ','').replace('>info</playerCard-row>','');
+			console.log(body);
+			console.log(name);
+			console.log(info);
+			console.log(headers.split('\" col'));
+			var playerData = "";
+			var headerArr = headers.split('\" col');
+			var rowArr = rows.split('\" col');
+			if (rowArr.length === 0) {
+				playerData += status.split(",")[0];
+			}
+			else {
+				for (var i = 1; i < headerArr.length; i++){
+					var tag = headerArr[i].split('\"');
+					var value = rowArr[i].split('\"');
+					playerData += tag[1] + ": " + value[1] + "\n";
+					console.log(tag[1] + ":" + value[1]);
+				}
+			}
+			var card = new UI.Card({
+				title: first + ' ' + middle + ' ' + last,
+				body: playerData,
+				scrollable: true
+			});
+			card.show();
+		}	
+		else {
+			var noPlayer = new UI.Card({
+				title: first + ' ' + last,
+				body: "Sorry, no data available for this player",
+				scrollable: true
+			});
+			noPlayer.show();
+		}
+	});
 }
 
 
